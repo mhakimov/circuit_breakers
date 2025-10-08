@@ -1,0 +1,37 @@
+name: Upload docker images
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-and-push:
+    name: Build and Push Docker Images
+    runs-on: ubuntu-latest
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
+      S3_UTILS_BUCKET: ${{ secrets.S3_UTILS_BUCKET }}
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials via OIDC
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::${{ secrets.AWS_ACCOUNT_ID }}:role/github-actions-terraform-role 
+          aws-region: eu-west-2
+
+      - name: Build Docker Images
+        run: |
+          cd docker
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/flaky_service -f Dockerfile .
+
+      - name: Authenticate Docker to AWS ECR
+        run: |
+          aws ecr get-login-password --region $AWS_REGION \
+            | docker login --username AWS --password-stdin $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com
+
+      - name: Push Docker Images to ECR
+        run: |
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/flaky_service
