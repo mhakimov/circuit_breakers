@@ -10,7 +10,6 @@ jobs:
     env:
       AWS_REGION: ${{ vars.AWS_REGION }}
       AWS_ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
-      S3_UTILS_BUCKET: ${{ secrets.S3_UTILS_BUCKET }}
 
     steps:
       - name: Checkout Code
