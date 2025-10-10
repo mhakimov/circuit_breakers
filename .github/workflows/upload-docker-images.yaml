@@ -27,7 +27,7 @@ jobs:
       - name: Build Docker Images
         run: |
           cd docker
-          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/flaky_service -f Dockerfile .
+          docker build -t $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/api_server_repo -f Dockerfile .
 
       - name: Authenticate Docker to AWS ECR
         run: |
@@ -36,4 +36,4 @@ jobs:
 
       - name: Push Docker Images to ECR
         run: |
-          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/flaky_service
+          docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_REGION.amazonaws.com/api_server_repo
