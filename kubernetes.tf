@@ -1,64 +1,68 @@
-# provider "kubernetes" {
-#   host                   = aws_eks_cluster.demo.endpoint
-#   cluster_ca_certificate = base64decode(aws_eks_cluster.demo.certificate_authority[0].data)
-#   token                  = data.aws_eks_cluster_auth.demo.token
-# }
+data "aws_eks_cluster_auth" "demo" {
+  name = aws_eks_cluster.demo.name
+}
 
-# data "aws_eks_cluster_auth" "demo" {
-#   name = aws_eks_cluster.demo.name
-# }
+resource "kubernetes_namespace" "demo" {
+  metadata {
+    name = "demo"
+  }
+}
 
-# resource "kubernetes_deployment" "unstable_api" {
-#   metadata {
-#     name      = "unstable-api"
-#     namespace = "default"
-#     labels = {
-#       app = "unstable-api"
-#     }
-#   }
+resource "kubernetes_deployment" "flaky_api" {
+  metadata {
+    name      = "flaky-api"
+    namespace = kubernetes_namespace.demo.metadata[0].name
+  }
+  spec {
+    replicas = 2
+    selector {
+      match_labels = {
+        app = "flaky-api"
+      }
+    }
+    template {
+      metadata {
+        labels = {
+          app = "flaky-api"
+        }
+      }
+      spec {
+        container {
+          name  = "api"
+          image = "${aws_ecr_repository.api_server_repo.repository_url}:latest"
+          port {
+            container_port = 5000
+          }
 
-#   spec {
-#     replicas = 2
-#     selector {
-#       match_labels = {
-#         app = "unstable-api"
-#       }
-#     }
-#     template {
-#       metadata {
-#         labels = {
-#           app = "unstable-api"
-#         }
-#       }
-#       spec {
-#         container {
-#           name  = "unstable-api"
-#           image = "public.ecr.aws/docker/library/python:3.11-slim" # Simple Python container
-#           port {
-#             container_port = 8080
-#           }
-#           command = [
-#             "python", "-m", "http.server", "8080"
-#           ]
-#         }
-#       }
-#     }
-#   }
-# }
+          resources {
+            limits = {
+              cpu    = "512m"
+              memory = "1Gi"
+            }
+            requests = {
+              cpu    = "256m"
+              memory = "512Mi"
+            }
+          }
+        }
+      }
+    }
+  }
+}
 
-# resource "kubernetes_service" "unstable_api" {
-#   metadata {
-#     name = "unstable-api"
-#   }
-
-#   spec {
-#     selector = {
-#       app = kubernetes_deployment.unstable_api.metadata[0].labels.app
-#     }
-#     port {
-#       port        = 80
-#       target_port = 8080
-#     }
-#     type = "LoadBalancer"
-#   }
-# }
+resource "kubernetes_service" "flaky_api_svc" {
+  metadata {
+    name      = "flaky-api-svc"
+    namespace = kubernetes_namespace.demo.metadata[0].name
+  }
+  spec {
+    selector = {
+      app = "flaky-api"
+    }
+    port {
+      port        = 80
+      target_port = 5000
+    }
+    type = "LoadBalancer"
+  }
+}
