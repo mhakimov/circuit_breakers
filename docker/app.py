@@ -15,3 +15,7 @@ def api_random():
     if random.random() < 0.3:  # 30% failure
         return "Random failure", 500
     return "Success", 200
+
+if __name__ == "__main__":
+    # Listen on all interfaces (important inside a container!)
+    app.run(host="0.0.0.0", port=5000)
