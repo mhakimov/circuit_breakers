@@ -54,15 +54,32 @@ resource "kubernetes_service" "flaky_api_svc" {
   metadata {
     name      = "flaky-api-svc"
     namespace = kubernetes_namespace.demo.metadata[0].name
+
+    annotations = {
+      # This tells the Cloud Map controller to register this service
+      "service.beta.kubernetes.io/aws-cloud-map-service" = "flaky-api"
+    }
   }
+
   spec {
     selector = {
       app = "flaky-api"
     }
+
     port {
       port        = 80
       target_port = 5000
     }
-    type = "LoadBalancer"
+
+    # Internal only — no ELB created
+    type = "ClusterIP"
   }
 }
+
+resource "aws_service_discovery_private_dns_namespace" "demo" {
+  name        = "demo.local"
+  description = "Private namespace for EKS service discovery"
+  vpc         = module.network.vpc_id
+}
+
+
