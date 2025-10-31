@@ -1,14 +1,14 @@
-resource "aws_eks_cluster" "demo" {
-  name     = var.eks_cluster_name
-  role_arn = aws_iam_role.eks_cluster.arn
+# resource "aws_eks_cluster" "demo" {
+#   name     = var.eks_cluster_name
+#   role_arn = aws_iam_role.eks_cluster.arn
 
-  vpc_config {
-    subnet_ids         = module.network.private_subnet_ids
-    security_group_ids = [aws_security_group.eks_cluster.id]
-  }
+#   vpc_config {
+#     subnet_ids         = module.network.private_subnet_ids
+#     security_group_ids = [aws_security_group.eks_cluster.id]
+#   }
 
-  depends_on = [aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy]
-}
+#   depends_on = [aws_iam_role_policy_attachment.eks_cluster_AmazonEKSClusterPolicy]
+# }
 
 
 # resource "aws_eks_node_group" "demo_nodes" {
@@ -33,31 +33,31 @@ resource "aws_eks_cluster" "demo" {
 #   depends_on     = [aws_iam_role_policy_attachment.eks_nodes_AmazonEKSWorkerNodePolicy]
 # }
 
-resource "aws_security_group" "eks_cluster" {
-  name        = "eks-cluster-sg"
-  description = "Cluster communication with worker nodes"
-  vpc_id      = module.network.vpc_id
+# resource "aws_security_group" "eks_cluster" {
+#   name        = "eks-cluster-sg"
+#   description = "Cluster communication with worker nodes"
+#   vpc_id      = module.network.vpc_id
 
-  # Allow worker nodes to talk to control plane
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   # Allow worker nodes to talk to control plane
+#   ingress {
+#     from_port   = 443
+#     to_port     = 443
+#     protocol    = "tcp"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  # Allow all egress
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
+#   # Allow all egress
+#   egress {
+#     from_port   = 0
+#     to_port     = 0
+#     protocol    = "-1"
+#     cidr_blocks = ["0.0.0.0/0"]
+#   }
 
-  tags = {
-    Name = "eks-cluster-sg"
-  }
-}
+#   tags = {
+#     Name = "eks-cluster-sg"
+#   }
+# }
 
 # resource "aws_security_group" "eks_nodes" {
 #   name        = "eks-nodes-sg"
