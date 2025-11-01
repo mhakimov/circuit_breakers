@@ -13,6 +13,9 @@ RUN npm ci --only=production
 # Copy application code
 COPY . .
 
+# Install curl for ECS health check
+RUN apk add --no-cache curl
+
 # Expose the API port
 EXPOSE 3101
 

@@ -22,6 +22,6 @@ app.put("/api/applications/:applicationId/decision", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3101;
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
     console.log(`Application Manager API running on port ${PORT}`);
 });
