@@ -12,6 +12,10 @@ app.put("/api/applications/:applicationId/decision", async (req, res) => {
     const { applicationId } = req.params;
     const decision = req.body.decision || "unknown";
 
+    const FAILURE_RATE = process.env.FAILURE_RATE || 0.3;
+    const TIMEOUT_RATE = process.env.FAILURE_RATE || 0.5;
+
+
     console.log(`Incoming decision request for ${applicationId}`);
 
     // Random artificial latency (0–10 seconds)
@@ -20,11 +24,11 @@ app.put("/api/applications/:applicationId/decision", async (req, res) => {
 
     // Random failure simulation
     const random = Math.random();
-    if (random < 0.2) {
+    if (random < FAILURE_RATE) {
         console.log("Simulating server error (500)");
         return res.status(500).json({ error: "Internal Server Error" });
     }
-    if (random < 0.3) {
+    if (random < TIMEOUT_RATE) {
         console.log("Simulating timeout (no response)");
         // Never send a response so that connection will hang until Lambda times out
         return;
