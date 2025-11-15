@@ -13,7 +13,7 @@ app.put("/api/applications/:applicationId/decision", async (req, res) => {
     const decision = req.body.decision || "unknown";
 
     const FAILURE_RATE = process.env.FAILURE_RATE || 0.3;
-    const TIMEOUT_RATE = process.env.FAILURE_RATE || 0.5;
+    const TIMEOUT_RATE = process.env.TIMEOUT_RATE || 0.6;
 
 
     console.log(`Incoming decision request for ${applicationId}`);
