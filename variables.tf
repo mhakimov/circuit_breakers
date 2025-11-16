@@ -9,7 +9,3 @@ variable "aws_region" {
 variable "aws_account_id" {
 
 }
-
-# variable "eks_cluster_name" {
-#   default = "demo-cluster"
-# }

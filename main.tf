@@ -14,5 +14,4 @@ module "network" {
   private_subnet_azs   = ["${var.aws_region}a", "${var.aws_region}b"]
   enable_eks_tags      = true
   tags                 = local.tags
-  # eks_cluster_name     = var.eks_cluster_name
 }
