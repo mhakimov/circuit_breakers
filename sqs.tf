@@ -1,4 +1,4 @@
-# resource "aws_sqs_queue" "requests" {
-#   name = "demo-requests-queue"
-# }
+resource "aws_sqs_queue" "queue" {
+  name = "demo-requests-queue"
+}
 
