@@ -6,24 +6,22 @@ data "archive_file" "lambda_zip" {
 
 
 resource "aws_lambda_function" "processor" {
-  function_name    = "${var.project}-processor"
-  role             = aws_iam_role.lambda_exec.arn
-  handler          = "index.handler"
-  runtime          = "nodejs18.x"
-  filename         = data.archive_file.lambda_zip.output_path
-  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
-
+  function_name                  = "${var.project}-processor"
+  role                           = aws_iam_role.lambda_exec.arn
+  handler                        = "index.handler"
+  runtime                        = "nodejs18.x"
+  filename                       = data.archive_file.lambda_zip.output_path
+  source_code_hash               = data.archive_file.lambda_zip.output_base64sha256
+  reserved_concurrent_executions = 1
 
   memory_size = 512
-  timeout     = 30
-
+  timeout     = 120
 
   vpc_config {
     # subnet_ids         = values(aws_subnet.private)[*].id
     subnet_ids         = module.network.private_subnet_ids
     security_group_ids = [aws_security_group.lambda_sg.id]
   }
-
 
   environment {
     variables = {

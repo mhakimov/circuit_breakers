@@ -86,8 +86,8 @@ resource "aws_ecs_task_definition" "app" {
       image        = "${var.aws_account_id}.dkr.ecr.${var.aws_region}.amazonaws.com/order_manager_repo:latest" # replace with your image
       portMappings = [{ containerPort = 3101, protocol = "tcp" }]
       environment = [
-        { "name" : "FAILURE_RATE", "value" : "0.5" },
-        { "name" : "TIMEOUT_RATE", "value" : "0.3" }
+        { "name" : "FAILURE_RATE", "value" : "0.3" },
+        { "name" : "TIMEOUT_RATE", "value" : "0.7" }
       ]
       essential   = true
       healthCheck = { command = ["CMD-SHELL", "curl -f http://localhost:3101/health || exit 1"], interval = 30, timeout = 5, retries = 3, startPeriod = 30 }
