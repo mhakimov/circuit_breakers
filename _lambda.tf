@@ -15,7 +15,7 @@ resource "aws_lambda_function" "processor" {
   reserved_concurrent_executions = 1
 
   memory_size = 512
-  timeout     = 120
+  timeout     = 30
 
   vpc_config {
     # subnet_ids         = values(aws_subnet.private)[*].id
@@ -27,6 +27,8 @@ resource "aws_lambda_function" "processor" {
     variables = {
       APPLICATION_MANAGER_API_SERVER = "http://application-manager-api.${aws_service_discovery_private_dns_namespace.ns.name}:3101/api"
       SQS_QUEUE_URL                  = aws_sqs_queue.queue.id
+      FAILURE_THRESHOLD              = 3
+      CIRCUIT_TABLE                  = aws_dynamodb_table.circuit_breaker.name
     }
   }
 }
