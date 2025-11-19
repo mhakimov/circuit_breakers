@@ -1,8 +1,14 @@
 const https = require("https");
 const http = require("http");
-const AWS = require("aws-sdk");
+// const AWS = require("aws-sdk");
 
-const dynamodb = new AWS.DynamoDB.DocumentClient();
+// const dynamodb = new AWS.DynamoDB.DocumentClient();
+const { DynamoDBClient } = require("@aws-sdk/client-dynamodb");
+const { DynamoDBDocumentClient, GetCommand, PutCommand } = require("@aws-sdk/lib-dynamodb");
+
+const ddbClient = new DynamoDBClient({});
+const dynamodb = DynamoDBDocumentClient.from(ddbClient);
+
 const circuitTable = process.env.CIRCUIT_TABLE || "CircuitBreaker";
 const FAILURE_THRESHOLD = process.env.FAILURE_THRESHOLD || 3;
 const OPEN_TIMEOUT_MS = 30000; // 30 seconds
@@ -53,9 +59,13 @@ async function makeRequest(url, payload) {
 }
 
 async function getCircuitState() {
-    const res = await dynamodb
-        .get({ TableName: circuitTable, Key: { serviceName } })
-        .promise();
+    const res = await dynamodb.send(
+        new GetCommand({
+            TableName: circuitTable,
+            Key: { serviceName },
+        })
+    );
+
     if (!res.Item) {
         return { status: "CLOSED", failureCount: 0, lastFailureTime: 0 };
     }
@@ -70,12 +80,12 @@ async function getCircuitState() {
 }
 
 async function updateCircuitState(newState) {
-    await dynamodb
-        .put({
+    await dynamodb.send(
+        new PutCommand({
             TableName: circuitTable,
             Item: { serviceName, ...newState },
         })
-        .promise();
+    );
 }
 
 exports.handler = async (event) => {
